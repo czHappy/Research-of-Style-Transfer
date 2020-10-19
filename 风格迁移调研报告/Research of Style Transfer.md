@@ -7,12 +7,20 @@
   - [技术方法](#技术方法)
   - [算法调研](#算法调研)
     - [A Neural Algorithm of Artistic Style](#a-neural-algorithm-of-artistic-style)
+  - [- 神经风格迁移(NST)的开山之作，缺点是每次生成图片都要进行迭代，速度太慢，且生成效果不好](#ulli神经风格迁移nst的开山之作缺点是每次生成图片都要进行迭代速度太慢且生成效果不好liul)
     - [Perceptual Losses for Real-Time Style Transfer and Super-Resolution](#perceptual-losses-for-real-time-style-transfer-and-super-resolution)
+    - [Improved Texture Networks: Maximizing Quality and Diversity in  Feed-forward Stylization and Texture Synthesis](#improved-texture-networks-maximizing-quality-and-diversity-in-feed-forward-stylization-and-texture-synthesis)
+    - [Stylebank: An explicit representation for neural image style transfer](#stylebank-an-explicit-representation-for-neural-image-style-transfer)
+    - [A learned representation for artistic style](#a-learned-representation-for-artistic-style)
+    - [Diversified texture synthesis with feed-forward networks](#diversified-texture-synthesis-with-feed-forward-networks)
     - [Multi-style Generative Network for Real-time Transfer](#multi-style-generative-network-for-real-time-transfer)
     - [Universal Style Transfer via Feature Transforms](#universal-style-transfer-via-feature-transforms)
     - [Fast Patch-based Style Transfer of Arbitrary Style](#fast-patch-based-style-transfer-of-arbitrary-style)
     - [Meta Networks for Neural Style Transfer](#meta-networks-for-neural-style-transfer)
+    - [Dynamic Instance Normalization for Arbitrary Style Transfer](#dynamic-instance-normalization-for-arbitrary-style-transfer)
     - [Arbitrary Style Transfer in Real-time with Adaptive Instance Normalization](#arbitrary-style-transfer-in-real-time-with-adaptive-instance-normalization)
+  - [- 评价：该方法通过AdaIN解决了Fast Patch-based Style Transfer of Arbitrary Style中Style-Swap操作计算开销大的问题，实现了任意风格实时转换。有完整的开源实现和测试样例，效果比较好。但是在Multi-style Generative Network for Real-time Transfer文章中指出，单纯地使用mean和variance会导致风格迁移的效果稍差，不如使用GRAM矩阵所得到的结果更有吸引力。](#ulli评价该方法通过adain解决了fast-patch-based-style-transfer-of-arbitrary-style中style-swap操作计算开销大的问题实现了任意风格实时转换有完整的开源实现和测试样例效果比较好但是在multi-style-generative-network-for-real-time-transfer文章中指出单纯地使用mean和variance会导致风格迁移的效果稍差不如使用gram矩阵所得到的结果更有吸引力liul)
+    - [Real-Time Neural Style Transfer for Videos](#real-time-neural-style-transfer-for-videos)
     - [Coherent Online Video Style Transfer](#coherent-online-video-style-transfer)
     - [ReCoNet: Real-time Coherent Video Style Transfer Network](#reconet-real-time-coherent-video-style-transfer-network)
     - [Learning Linear Transformations for Fast Image and Video Style Transfer](#learning-linear-transformations-for-fast-image-and-video-style-transfer)
@@ -47,13 +55,14 @@
 - 会议：
 - 主要思想：
   - 将内容表示和风格表示分开，用预训练好的VGG-16/VGG-19提取内容图片的内容特征C(指定层的特征图输出)和风格图片的风格特征S(指定层的特征图输出经过GRAM矩阵运算后的结果)
-  - 将原始随机生成的噪声图片，指定的内容图片和风格图片这三张图片一起输入VGG中，得到原始图片的内容特征C', S'，分别计算CC',SS'之间的欧式距离作为内容损失和风格损失，总损失函数为内容损失和风格损失的加权和，反向迭代原始噪声图片，直到调节噪声图为目标图片。
+  - 将原始随机生成的噪声图片，指定的内容图片和风格图片这三张图片一起输入VGG中，得到原始图片的内容特征C', 风格特征S'，分别计算CC',SS'之间的欧式距离作为内容损失和风格损失，总损失函数为内容损失和风格损失的加权平均，反向迭代原始噪声图片，直到调节噪声图为目标图片。
   - $\min _{I}\left(\lambda_{c}\left\|\mathbf{C} \mathbf{P}\left(I ; w_{f}\right)-\mathbf{C} \mathbf{P}\left(I_{c} ; w_{f}\right)\right\|_{2}^{2}+\lambda_{s}\left\|\mathbf{S} \mathbf{P}\left(I ; w_{f}\right)-\mathbf{S} \mathbf{P}\left(I_{s} ; w_{f}\right)\right\|_{2}^{2}\right)$
+    - ${I}$为初始噪声图片,${I_c}$为内容图片，${I_s}$为风格图片，${w_f}$为VGG网络固定参数，$\mathbf{CP}$为内容表示，$\mathbf{SP}$风格表示$\lambda_c \lambda_s$分别表示内容权重和风格权重。
 - 数据集： 不需要训练数据集，只需要内容图片和风格图片
 - 开源代码：https://github.com/titu1994/Neural-Style-Transfer
 - 评价
   - 神经风格迁移(NST)的开山之作，缺点是每次生成图片都要进行迭代，速度太慢，且生成效果不好
-
+---
 ### Perceptual Losses for Real-Time Style Transfer and Super-Resolution
 - 作者：Justin Johnson, Alexandre Alahi, Li Fei-Fei
 - 年份：2016
@@ -61,13 +70,27 @@
 - 主要思想：
     - 在Gatys的基础上，在左边加上一个转换网络fw，目标是训练该fw使得对任意输入内容图片，快速地输出该内容图片融合固定地风格图片地结果，单模型单风格快速风格迁移(GTX Titan X GPU, 20FPS for 512X512)。
     - $\min _{w} \sum_{I_{c}}\left(\lambda_{c}\left\|\mathbf{C P}\left(I_{w} ; w_{f}\right)-\mathbf{C P}\left(I_{c} ; w_{f}\right)\right\|_{2}^{2}+\lambda_{s}\left\|\mathbf{S} \mathbf{P}\left(I_{w} ; w_{f}\right)-\mathbf{S} \mathbf{P}\left(I_{s} ; w_{f}\right)\right\|_{2}^{2}\right)$
+      - $I_w$是生成图像， $I_{w}=\mathcal{N}\left(I_{c} ; w\right)$, $\mathcal{N}$是Transform Net
     - 网络结构
   ![](./imgs/1.PNG)
 - 数据集：大量内容图片，如COCO数据集
 - 开源代码：https://github.com/abhiskk/fast-neural-style
 - 评价：
-  - 速度较快，图像转换质量高，缺点是风格需固定，每增加一个风格都要额外训练一个对应地模型。
+  - 速度较快，图像转换质量高，缺点是风格需固定，每增加一个风格都要额外训练一个对应的模型。
+### Improved Texture Networks: Maximizing Quality and Diversity in  Feed-forward Stylization and Texture Synthesis
+- 待完成
 
+---
+
+### Stylebank: An explicit representation for neural image style transfer
+- CVPR 2017
+- 无开源实现
+### A learned representation for artistic style
+-  ICLR, 2017
+-  待完成
+### Diversified texture synthesis with feed-forward networks
+-  CVPR, 2017
+-  待完成
 ### Multi-style Generative Network for Real-time Transfer
 - 作者：Hang Zhang, Kristin Dana.
 - 年份：2017
@@ -82,6 +105,10 @@
 - 开源代码：https://github.com/zhanghang1989/PyTorch-Multi-Style-Transfer
 - 数据集：COCO + 所需要的风格图片集合
 - 评价：MSG-Net实现了单模型多风格转换，并且能够达到实时转换速度，生成图片的质量高。缺点是进行风格迁移时只能使用训练时指定的风格图片集合中的某一个，不能由用户自定义指定。
+
+
+---
+
 ### Universal Style Transfer via Feature Transforms
 - 作者：Yijun Li, et al. 
 - 年份：2017
@@ -126,12 +153,31 @@
 - 评价
   - 单模型可处理任意风格，速度快，生成质量好
 
+### Dynamic Instance Normalization for Arbitrary Style Transfer
+- 作者：
+- 年份：2020
+- 会议：AAAI
+- 无开源实现
+
 
 
 ### Arbitrary Style Transfer in Real-time with Adaptive Instance Normalization
-- 待完成
-
-
+- 作者：Xun Huang  Serge Belongie
+- 年份：2017
+- 会议：ICCV 
+- 主要思想：
+  - 作者通过实验发现Instance Normalization可以进行某种程度上的“风格归一化”,并提出一种自适应实例归一化层(AdaIN),将给定的内容图片和风格图片在特征提取网络所得到的高层特征图(分别记为x和y)进行AdaIN，即调整x的均值和方差，使其与y相匹配。
+    - $\operatorname{AdaIN}(x, y)=\sigma(y)\left(\frac{x-\mu(x)}{\sigma(x)}\right)+\mu(y)$
+  - 经过AdaIN层得到输出t，将t送入解码器g生成风格化图片。该生成图片会被接着送入损失评估网络VGG中评估内容损失和风格损失，得到总损失后反向传播训练Style Transfer Network,具体pipeline如下图
+    - $t=\operatorname{AdaIN}(f(c), f(s))$
+    - $T(c, s)=g(t)$
+  ![](./imgs/14.PNG)
+- 开源代码：https://github.com/xunhuang1995/AdaIN-style
+- 数据集: 内容图片数据集COCO 风格图片数据集WikiArt
+- 评价：该方法通过AdaIN解决了Fast Patch-based Style Transfer of Arbitrary Style中Style-Swap操作计算开销大的问题，实现了任意风格实时转换。有完整的开源实现和测试样例，效果比较好。但是在Multi-style Generative Network for Real-time Transfer文章中指出，单纯地使用mean和variance会导致风格迁移的效果稍差，不如使用GRAM矩阵所得到的结果更有吸引力。
+--- 
+### Real-Time Neural Style Transfer for Videos
+- 无开源实现
 
 ### Coherent Online Video Style Transfer
 - 作者：Dongdong Chen, Jing Liao, Lu Y uan2, et al.
