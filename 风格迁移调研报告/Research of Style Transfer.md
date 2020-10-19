@@ -1,7 +1,3 @@
-<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({ tex2jax: {inlineMath: [['$', '$']]}, messageStyle: "none" });
-</script>
 # 风格迁移调研
 <!-- TOC -->
 
@@ -80,7 +76,7 @@
   - 仍然以VGG作为损失评估网络，训练一个生成网络G。G包括一个Siamese Network，用于提取输入风格图片S不同scale的特征统计信息，即不同scale下的Gram矩阵；一个转换网络T，接收内容图片C，C经过T编码后的特征图，通过CoMatch层与风格图片多个scale的特征统计信息进行匹配，得到生成图像。
   - CoMatch Layer作用在于基于给定的风格图片匹配其特征的二阶统计量。它不是采用传统的C和S的内容损失和风格损失的加权平均，而是引入了一个可学习的矩阵W，能够动态地trade-off 风格与内容的比例系数。并且W的参数从总损失函数学习。
     - CoMatch Layer $$\hat{\mathcal{Y}}^{i}=\Phi^{-1}\left[\Phi\left(\mathcal{F}^{i}\left(x_{c}\right)\right)^{T} W \mathcal{G}\left(\mathcal{F}^{i}\left(x_{s}\right)\right)\right]^{T}$$
-    - Loss Function: $$\begin{aligned} \hat{W}_{G} &=\underset{W_{G}}{\operatorname{argmin}} E_{x_{c}, x_{s}}\{\\ & \lambda_{c}\left\|\mathcal{F}^{c}\left(G\left(x_{c}, x_{s}\right)\right)-\mathcal{F}^{c}\left(x_{c}\right)\right\|_{F}^{2} \\ &+\lambda_{s} \sum_{i=1}^{K}\left\|\mathcal{G}\left(\mathcal{F}^{i}\left(G\left(x_{c}, x_{s}\right)\right)\right)-\mathcal{G}\left(\mathcal{F}^{i}\left(x_{s}\right)\right)\right\|_{F}^{2} \\ &\left.+\lambda_{T V} \ell_{T V}\left(G\left(x_{c}, x_{s}\right)\right)\right\} \end{aligned}$$
+    - Loss Function $$\begin{aligned} \hat{W}_{G} &=\underset{W_{G}}{\operatorname{argmin}} E_{x_{c}, x_{s}}\{\\ & \lambda_{c}\left\|\mathcal{F}^{c}\left(G\left(x_{c}, x_{s}\right)\right)-\mathcal{F}^{c}\left(x_{c}\right)\right\|_{F}^{2} \\ &+\lambda_{s} \sum_{i=1}^{K}\left\|\mathcal{G}\left(\mathcal{F}^{i}\left(G\left(x_{c}, x_{s}\right)\right)\right)-\mathcal{G}\left(\mathcal{F}^{i}\left(x_{s}\right)\right)\right\|_{F}^{2} \\ &\left.+\lambda_{T V} \ell_{T V}\left(G\left(x_{c}, x_{s}\right)\right)\right\} \end{aligned}$$
   ![](./imgs/5.PNG)
   - 另外，Siamese网络与转换网络的编码器部分共享权重，不需要额外训练。并且增加了新的上采样卷积，避免了反卷积所带来的棋盘效应。通过Resize style image，可以实时更改笔触粗细(Real-time brush-size control)。训练时，可以只训练100个风格，也可以训练到1000个风格，效果基本不变。
 - 开源代码：https://github.com/zhanghang1989/PyTorch-Multi-Style-Transfer
@@ -104,7 +100,7 @@
 - 年份：2016
 - 会议: 
 - 主要思想
-  - 抽取内容图片C和风格图片S若干patches,使用预训练好的VGG-19作为特征提取网络，计算patches_i的指定层激活值$\phi_{i}(C)$$\phi_{i}(S)$。对于每个内容图片的patch,根据$$\phi_{i}^{s s}(C, S):=\underset{\phi_{j}(S), j=1, \ldots, n_{s}}{\operatorname{argmax}} \frac{\left\langle\phi_{i}(C), \phi_{j}(S)\right\rangle}{\left\|\phi_{i}(C)\right\| \cdot\left\|\phi_{j}(S)\right\|}$$找到一个 closest-matching style patch。将每一个$\phi_{i}(C)$ swap为$\phi_{i}^{s s}(C, S)$,然后将$\phi_{i}^{s s}(C, S)$传入inverse network中生成结果图像，实际上就是根据$\phi_{i}^{s s}(C, S)$进行图像重构。
+  - 抽取内容图片C和风格图片S若干patches,使用预训练好的VGG-19作为特征提取网络，计算patches_i的指定层激活值$\phi_{i}(C)$$\phi_{i}(S)$。对于每个内容图片的patch,根据 $$\phi_{i}^{s s}(C, S):=\underset{\phi_{j}(S), j=1, \ldots, n_{s}}{\operatorname{argmax}} \frac{\left\langle\phi_{i}(C), \phi_{j}(S)\right\rangle}{\left\|\phi_{i}(C)\right\| \cdot\left\|\phi_{j}(S)\right\|}$$ 找到一个 closest-matching style patch。将每一个$\phi_{i}(C)$ swap为$\phi_{i}^{s s}(C, S)$,然后将$\phi_{i}^{s s}(C, S)$传入inverse network中生成结果图像，实际上就是根据$\phi_{i}^{s s}(C, S)$进行图像重构。
   ![](./imgs/4.PNG)
   - 训练inverse net时，主要考虑到其重构图片在经过pipeline前半部分的编码输出要尽量接近于$\phi_{i}^{s s}(C, S)$，并且使用全变分正则化保证生成图片具有平滑性。$$\underset{f}{\operatorname{arginf}} \mathbb{E}_{H}\left[\|\Phi(f(H))-H\|_{F}^{2}+\lambda \ell_{T V}(f(H))\right]$$
 - 数据集：内容图片数据集COCO 风格图片数据集WikiArt
@@ -133,7 +129,7 @@
 
 
 ### Arbitrary Style Transfer in Real-time with Adaptive Instance Normalization
-  
+- 待完成
 
 
 
