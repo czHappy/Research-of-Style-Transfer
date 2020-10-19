@@ -63,7 +63,7 @@
     - 在Gatys的基础上，在左边加上一个转换网络fw，目标是训练该fw使得对任意输入内容图片，快速地输出该内容图片融合固定地风格图片地结果，单模型单风格快速风格迁移(GTX Titan X GPU, 20FPS for 512X512)。
     - $\min _{w} \sum_{I_{c}}\left(\lambda_{c}\left\|\mathbf{C P}\left(I_{w} ; w_{f}\right)-\mathbf{C P}\left(I_{c} ; w_{f}\right)\right\|_{2}^{2}+\lambda_{s}\left\|\mathbf{S} \mathbf{P}\left(I_{w} ; w_{f}\right)-\mathbf{S} \mathbf{P}\left(I_{s} ; w_{f}\right)\right\|_{2}^{2}\right)$
     - 网络结构
-  ![](./imgs/1.png)
+  ![](./imgs/1.PNG)
 - 数据集：大量内容图片，如COCO数据集
 - 开源代码：https://github.com/abhiskk/fast-neural-style
 - 评价：
@@ -78,7 +78,7 @@
   - CoMatch Layer作用在于基于给定的风格图片匹配其特征的二阶统计量。它不是采用传统的C和S的内容损失和风格损失的加权平均，而是引入了一个可学习的矩阵W，能够动态地trade-off 风格与内容的比例系数。并且W的参数从总损失函数学习。
     - CoMatch Layer $$\hat{\mathcal{Y}}^{i}=\Phi^{-1}\left[\Phi\left(\mathcal{F}^{i}\left(x_{c}\right)\right)^{T} W \mathcal{G}\left(\mathcal{F}^{i}\left(x_{s}\right)\right)\right]^{T}$$
     - Loss Function: $$\begin{aligned} \hat{W}_{G} &=\underset{W_{G}}{\operatorname{argmin}} E_{x_{c}, x_{s}}\{\\ & \lambda_{c}\left\|\mathcal{F}^{c}\left(G\left(x_{c}, x_{s}\right)\right)-\mathcal{F}^{c}\left(x_{c}\right)\right\|_{F}^{2} \\ &+\lambda_{s} \sum_{i=1}^{K}\left\|\mathcal{G}\left(\mathcal{F}^{i}\left(G\left(x_{c}, x_{s}\right)\right)\right)-\mathcal{G}\left(\mathcal{F}^{i}\left(x_{s}\right)\right)\right\|_{F}^{2} \\ &\left.+\lambda_{T V} \ell_{T V}\left(G\left(x_{c}, x_{s}\right)\right)\right\} \end{aligned}$$
-  ![](./imgs/5.png)
+  ![](./imgs/5.PNG)
   - 另外，Siamese网络与转换网络的编码器部分共享权重，不需要额外训练。并且增加了新的上采样卷积，避免了反卷积所带来的棋盘效应。通过Resize style image，可以实时更改笔触粗细(Real-time brush-size control)。训练时，可以只训练100个风格，也可以训练到1000个风格，效果基本不变。
 - 开源代码：https://github.com/zhanghang1989/PyTorch-Multi-Style-Transfer
 - 数据集：COCO + 所需要的风格图片集合
@@ -91,7 +91,7 @@
   - 作者使用了WCT（Whiten-ColorTransform）将内容图的特征协方差与给定风格的特征协方差进行匹配。与之前的方法相比，该方法不需要针对某一种特征图进行训练，可以使用任意风格图对内容图进行风格转移。
   - 首先将预训练好的VGG作为编码器，针对relu1~relu5层设计和训练5个对应的解码器，其作用是对来自VGG卷积层结果进行图像重构。损失函数为图像重构L2损失和特征L2损失的加权和。 $L=\left\|I_{o}-I_{i}\right\|_{2}^{2}+\lambda\left\|\Phi\left(I_{o}\right)-\Phi\left(I_{i}\right)\right\|_{2}^{2}$
   - 整体流程是从高层(relu5_1)到低层(relu1_1)逐层进行风格对齐和图像重构。WCT层通过白化和着色操作，把内容图片由VGG提取出的特征的协方差矩阵与风格图片对齐，转换后的特征通过之前训练好的重构网络即可生成风格迁移后的图片。
-  ![](./imgs/3.png)
+  ![](./imgs/3.PNG)
 - 数据集：COCO
 - 开源代码：https://github.com/Yijunmaverick/UniversalStyleTransfer
 - 评价：这篇文章的思路也是在特征层面进行风格和属性的融合，通过WCT操作进行内容图像到风格图像的协方差矩阵对齐，避开了对一个风格图片训练一个模型的缺点，实现了单模型任意风格的转换。缺点是根据实验结果，其生成图片的质量与其他方法有一定差距，且未提到图像生成速度。
@@ -102,7 +102,7 @@
 - 会议: 
 - 主要思想
   - 抽取内容图片C和风格图片S若干patches,使用预训练好的VGG-19作为特征提取网络，计算patches_i的指定层激活值$\phi_{i}(C)$$\phi_{i}(S)$。对于每个内容图片的patch,根据$$\phi_{i}^{s s}(C, S):=\underset{\phi_{j}(S), j=1, \ldots, n_{s}}{\operatorname{argmax}} \frac{\left\langle\phi_{i}(C), \phi_{j}(S)\right\rangle}{\left\|\phi_{i}(C)\right\| \cdot\left\|\phi_{j}(S)\right\|}$$找到一个 closest-matching style patch。将每一个$\phi_{i}(C)$ swap为$\phi_{i}^{s s}(C, S)$,然后将$\phi_{i}^{s s}(C, S)$传入inverse network中生成结果图像，实际上就是根据$\phi_{i}^{s s}(C, S)$进行图像重构。
-  ![](./imgs/4.png)
+  ![](./imgs/4.PNG)
   - 训练inverse net时，主要考虑到其重构图片在经过pipeline前半部分的编码输出要尽量接近于$\phi_{i}^{s s}(C, S)$，并且使用全变分正则化保证生成图片具有平滑性。$$\underset{f}{\operatorname{arginf}} \mathbb{E}_{H}\left[\|\Phi(f(H))-H\|_{F}^{2}+\lambda \ell_{T V}(f(H))\right]$$
 - 数据集：内容图片数据集COCO 风格图片数据集WikiArt
 - 开源代码：https://github.com/rtqichen/style-swap
@@ -121,7 +121,7 @@
     - $w_\theta$ 是转换网络的权值，$\theta$是MetaN的权值
     - $w_{\theta}=\operatorname{MetaN}\left(I_{s} ; \theta\right)$
 
-    ![](./imgs/2.png)
+    ![](./imgs/2.PNG)
 - 数据集：内容图片数据集COCO 风格图片数据集WikiArt
 - 开源代码：https://github.com/FalongShen/styletransfer
 - 评价
@@ -140,9 +140,9 @@
 - 会议：ICCV
 - 主要思想
   - 通过two-frames 连贯性限制，克服了image style transfer 逐帧转换风格导致视频闪烁的问题。具体做法是，将网络设计为两个子模块，Style Sub-network和Flow Sub-network(分别简称S和F)。S网络是预训练好的风格转换网络，文章中采用Justin Johnson的Transform Net,并将其分为编码器解码器两部分。输入为t-1和t时刻相邻的两帧，前半部分分别得到t-1和t时刻的特征图，对于t-1时刻的特征图$F_{t-1}$，将其与F网络(光流估计网络，文中是在synthetic Flying Chairs数据集上训练好的FlowNet，需要进行fine-tuning以适应当前任务)输出的光流特征$W_t$ warp为$F_t^{'}$,将$F_t^{'}$和$F_t$之差送入MASK模块预测出可追踪的点或区域，这些点或区域仍使用前一帧的特征，否则使用当前帧的特征。输出结果送入S网络的解码器中得到当前帧生成图像。具体pipeline如下所示：
-  ![](./imgs/7.png)
+  ![](./imgs/7.PNG)
   - 核心是由短期一致性的propagation实现了整体序列的长期一致性，大大增加了视频的平滑性。
-    ![](./imgs/6.png)
+    ![](./imgs/6.PNG)
 
 - 数据集:作者自己收集了8个动作电影片段以及youtube上的视频约28,000帧作为训练集，并使用FlowNet2的计算结果作为ground-truth
 - 开源代码：暂无
@@ -156,7 +156,7 @@
 - 主要思想：
   - 核心在于损失函数的设计。作者同时考虑了Justin Jhonson论文中的perceptual loss和相邻帧之间的temporal loss, 既保证生成图像的质量，又能保证风格转换后的视频帧的平滑性。其temporal loss又考虑到两方面，一是提出luminance warping constraint，考虑到了可追踪像素的亮度变化(光流估计中亮度不变假设在实际视频中并不是一定成立)，提高风格转换的稳定性并抑制temporal inconsistency；二是提出特征图层面的 temporal loss，抑制相同物体在编码器中的高层特征的误差，提高了可追踪点风格转换的稳定性。
   - 与Coherent Online Video Style Transfer中在inference阶段使用光流不同，ReCoNet不需要在inference阶段使用光流，仅仅是在训练阶段使用了光流的ground-truth，因而大大加快的了推理速度，该模型号称能在GTX 1080Ti 单GPU下达到200FPS.
-    ![](./imgs/11.png)
+    ![](./imgs/11.PNG)
   - 损失函数
     - $\mathcal{L}_{t e m p, o}(t-1, t)=\sum_{c} \frac{1}{D} M_{t}\left\|\left(O_{t}-W_{t}\left(O_{t-1}\right)\right)_{c}-\left(I_{t}-W_{t}\left(I_{t-1}\right)\right)_{Y}\right\|^{2}$
       - c ∈ [R, G, B] is each of the RGB channels of the image, Y the relative
@@ -182,12 +182,12 @@ H ×W
 - 会议：WACV
 - 主要思想
   - 在一个网络模型中去学习多种不同的风格。在卷积层后添加multi-instance normalization layer，使用MIN-Layer将特征转换到新的风格特征空间，可由指定index控制。
-  ![](./imgs/9.png)
+  ![](./imgs/9.PNG)
   - 插入两个ConvLSTM模块到Encoder-Decoder中，使得风格化结果更具有时间连贯性。
   - 设计另外一个光流估计的分支FlowNetS，类似于上述的Coherent Online Video Style Transfer中的Flow Sub-network，使得t-1时刻和t时刻的帧更具有长短期连贯性。
-  ![](./imgs/8.png)
+  ![](./imgs/8.PNG)
   - 实时性
-  ![](./imgs/10.png)
+  ![](./imgs/10.PNG)
 - 数据集：COCO + 指定的风格图片集合
 - 开源代码：https://github.com/gaow0007/Fast-Multi-Video-Style-Transfer
 - 评价：该文章满足单模型多风格的视频风格转换，且速度快。
@@ -209,9 +209,9 @@ H ×W
   - 提出了两种网络结构FlowNetSimple和FlowNetCorr，这里主要分析第二种。FlowNetCorr对t和t+1两个时刻的帧送入两个分支分开处理，得到各自的特征图，然后使用correlation layer找到这两个特征图之间的联系并合并成一条路。计算两个特征图之间的联系使用如下公式。实际上相当于对特征图f1和特征图f2的每个patch两两做卷积，但这样复杂度比较高，于是限制每个patch只与它周围D个位置patch做联系运算。
   $$c\left(\mathbf{x}_{1}, \mathbf{x}_{2}\right)=\sum_{\mathbf{o} \in[-k, k] \times[-k, k]}\left\langle\mathbf{f}_{1}\left(\mathbf{x}_{1}+\mathbf{o}\right), \mathbf{f}_{2}\left(\mathbf{x}_{2}+\mathbf{o}\right)\right\rangle $$ 
   
-  ![](./imgs/12.png)
+  ![](./imgs/12.PNG)
   - 为了得到大量的数据集，作者自己设计了Flying Chairs。由于人工标注每个像素点光流的GT基本不可能，故作者使用了一种巧妙的方法(类似于先斩后奏)：首先生成一些椅子图片，融合到背景当中去，为了产生运动信息，产生融合图片的时候会随机产生一个位移变量，与背景和椅子的位移相关，再通过这个位移变量产生第二个图片和光流。
-  ![](./imgs/13.png)
+  ![](./imgs/13.PNG)
 
 ### occusion mask相关
 - 待完成
