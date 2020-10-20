@@ -1,41 +1,39 @@
-# 风格迁移调研
+# 1. 风格迁移调研
 <!-- TOC -->
 
-- [风格迁移调研](#风格迁移调研)
-  - [场景需求](#场景需求)
-  - [功能需求](#功能需求)
-  - [技术方法](#技术方法)
-  - [算法调研](#算法调研)
-    - [A Neural Algorithm of Artistic Style](#a-neural-algorithm-of-artistic-style)
-  - [- 神经风格迁移(NST)的开山之作，缺点是每次生成图片都要进行迭代，速度太慢，且生成效果不好](#ulli神经风格迁移nst的开山之作缺点是每次生成图片都要进行迭代速度太慢且生成效果不好liul)
-    - [Perceptual Losses for Real-Time Style Transfer and Super-Resolution](#perceptual-losses-for-real-time-style-transfer-and-super-resolution)
-    - [Improved Texture Networks: Maximizing Quality and Diversity in  Feed-forward Stylization and Texture Synthesis](#improved-texture-networks-maximizing-quality-and-diversity-in-feed-forward-stylization-and-texture-synthesis)
-    - [Stylebank: An explicit representation for neural image style transfer](#stylebank-an-explicit-representation-for-neural-image-style-transfer)
-    - [A learned representation for artistic style](#a-learned-representation-for-artistic-style)
-    - [Diversified texture synthesis with feed-forward networks](#diversified-texture-synthesis-with-feed-forward-networks)
-    - [Multi-style Generative Network for Real-time Transfer](#multi-style-generative-network-for-real-time-transfer)
-    - [Universal Style Transfer via Feature Transforms](#universal-style-transfer-via-feature-transforms)
-    - [Fast Patch-based Style Transfer of Arbitrary Style](#fast-patch-based-style-transfer-of-arbitrary-style)
-    - [Meta Networks for Neural Style Transfer](#meta-networks-for-neural-style-transfer)
-    - [Dynamic Instance Normalization for Arbitrary Style Transfer](#dynamic-instance-normalization-for-arbitrary-style-transfer)
-    - [Arbitrary Style Transfer in Real-time with Adaptive Instance Normalization](#arbitrary-style-transfer-in-real-time-with-adaptive-instance-normalization)
-  - [- 评价：该方法通过AdaIN解决了Fast Patch-based Style Transfer of Arbitrary Style中Style-Swap操作计算开销大的问题，实现了任意风格实时转换。有完整的开源实现和测试样例，效果比较好。但是在Multi-style Generative Network for Real-time Transfer文章中指出，单纯地使用mean和variance会导致风格迁移的效果稍差，不如使用GRAM矩阵所得到的结果更有吸引力。](#ulli评价该方法通过adain解决了fast-patch-based-style-transfer-of-arbitrary-style中style-swap操作计算开销大的问题实现了任意风格实时转换有完整的开源实现和测试样例效果比较好但是在multi-style-generative-network-for-real-time-transfer文章中指出单纯地使用mean和variance会导致风格迁移的效果稍差不如使用gram矩阵所得到的结果更有吸引力liul)
-    - [Real-Time Neural Style Transfer for Videos](#real-time-neural-style-transfer-for-videos)
-    - [Coherent Online Video Style Transfer](#coherent-online-video-style-transfer)
-    - [ReCoNet: Real-time Coherent Video Style Transfer Network](#reconet-real-time-coherent-video-style-transfer-network)
-    - [Learning Linear Transformations for Fast Image and Video Style Transfer](#learning-linear-transformations-for-fast-image-and-video-style-transfer)
-    - [Fast Video Multi-Style Transfer](#fast-video-multi-style-transfer)
-    - [Consistent Video Style Transfer via Compound Regularization](#consistent-video-style-transfer-via-compound-regularization)
-  - [基于GAN](#基于gan)
-  - [补充资料](#补充资料)
-    - [FlowNet: Learning Optical Flow with Convolutional Networks](#flownet-learning-optical-flow-with-convolutional-networks)
-    - [occusion mask相关](#occusion-mask相关)
+- [1. 风格迁移调研](#1-风格迁移调研)
+  - [1.1. 场景需求](#11-场景需求)
+  - [1.2. 功能需求](#12-功能需求)
+  - [1.3. 技术方法](#13-技术方法)
+  - [1.4. 算法调研](#14-算法调研)
+    - [1.4.1. A Neural Algorithm of Artistic Style](#141-a-neural-algorithm-of-artistic-style)
+    - [1.4.2. Perceptual Losses for Real-Time Style Transfer and Super-Resolution](#142-perceptual-losses-for-real-time-style-transfer-and-super-resolution)
+    - [1.4.3. Improved Texture Networks: Maximizing Quality and Diversity in  Feed-forward Stylization and Texture Synthesis](#143-improved-texture-networks-maximizing-quality-and-diversity-in-feed-forward-stylization-and-texture-synthesis)
+    - [1.4.4. Stylebank: An explicit representation for neural image style transfer](#144-stylebank-an-explicit-representation-for-neural-image-style-transfer)
+    - [1.4.5. A learned representation for artistic style](#145-a-learned-representation-for-artistic-style)
+    - [1.4.6. Diversified texture synthesis with feed-forward networks](#146-diversified-texture-synthesis-with-feed-forward-networks)
+    - [1.4.7. Multi-style Generative Network for Real-time Transfer](#147-multi-style-generative-network-for-real-time-transfer)
+    - [1.4.8. Universal Style Transfer via Feature Transforms](#148-universal-style-transfer-via-feature-transforms)
+    - [1.4.9. Fast Patch-based Style Transfer of Arbitrary Style](#149-fast-patch-based-style-transfer-of-arbitrary-style)
+    - [1.4.10. Meta Networks for Neural Style Transfer](#1410-meta-networks-for-neural-style-transfer)
+    - [1.4.11. Dynamic Instance Normalization for Arbitrary Style Transfer](#1411-dynamic-instance-normalization-for-arbitrary-style-transfer)
+    - [1.4.12. Arbitrary Style Transfer in Real-time with Adaptive Instance Normalization](#1412-arbitrary-style-transfer-in-real-time-with-adaptive-instance-normalization)
+    - [1.4.13. Real-Time Neural Style Transfer for Videos](#1413-real-time-neural-style-transfer-for-videos)
+    - [1.4.14. Coherent Online Video Style Transfer](#1414-coherent-online-video-style-transfer)
+    - [1.4.15. ReCoNet: Real-time Coherent Video Style Transfer Network](#1415-reconet-real-time-coherent-video-style-transfer-network)
+    - [1.4.16. Learning Linear Transformations for Fast Image and Video Style Transfer](#1416-learning-linear-transformations-for-fast-image-and-video-style-transfer)
+    - [1.4.17. Fast Video Multi-Style Transfer](#1417-fast-video-multi-style-transfer)
+    - [1.4.18. Consistent Video Style Transfer via Compound Regularization](#1418-consistent-video-style-transfer-via-compound-regularization)
+  - [1.5. 基于GAN](#15-基于gan)
+  - [1.6. 补充资料](#16-补充资料)
+    - [1.6.1. FlowNet: Learning Optical Flow with Convolutional Networks](#161-flownet-learning-optical-flow-with-convolutional-networks)
+    - [1.6.2. occusion mask相关](#162-occusion-mask相关)
 
 <!-- /TOC -->
-## 场景需求
+## 1.1. 场景需求
 - 给定视频内容和艺术风格，将二者融合，输出风格转换后的视频
 
-## 功能需求
+## 1.2. 功能需求
 - 模型
   - 单模型单风格
   - 单模型多风格/任意风格
@@ -43,13 +41,13 @@
   - 实时处理
   - 离线处理
 
-## 技术方法
+## 1.3. 技术方法
 - 传统方法
 - NST 基于神经网络的风格迁移技术，端到端地生成风格迁移后的图片/视频
 
 
-## 算法调研
-### A Neural Algorithm of Artistic Style 
+## 1.4. 算法调研
+### 1.4.1. A Neural Algorithm of Artistic Style 
 - 作者：Leon A. Gatys, Alexander S. Ecker, Matthias Bethge
 - 年份：2015
 - 会议：
@@ -60,10 +58,13 @@
     - ${I}$为初始噪声图片,${I_c}$为内容图片，${I_s}$为风格图片，${w_f}$为VGG网络固定参数，$\mathbf{CP}$为内容表示，$\mathbf{SP}$风格表示$\lambda_c \lambda_s$分别表示内容权重和风格权重。
 - 数据集： 不需要训练数据集，只需要内容图片和风格图片
 - 开源代码：https://github.com/titu1994/Neural-Style-Transfer
-- 评价
-  - 神经风格迁移(NST)的开山之作，缺点是每次生成图片都要进行迭代，速度太慢，且生成效果不好
+- 评价：神经风格迁移(NST)的开山之作，缺点是每次生成图片都要进行迭代，速度太慢，且生成效果不好
+
+
 ---
-### Perceptual Losses for Real-Time Style Transfer and Super-Resolution
+
+
+### 1.4.2. Perceptual Losses for Real-Time Style Transfer and Super-Resolution
 - 作者：Justin Johnson, Alexandre Alahi, Li Fei-Fei
 - 年份：2016
 - 会议
@@ -77,21 +78,21 @@
 - 开源代码：https://github.com/abhiskk/fast-neural-style
 - 评价：
   - 速度较快，图像转换质量高，缺点是风格需固定，每增加一个风格都要额外训练一个对应的模型。
-### Improved Texture Networks: Maximizing Quality and Diversity in  Feed-forward Stylization and Texture Synthesis
+### 1.4.3. Improved Texture Networks: Maximizing Quality and Diversity in  Feed-forward Stylization and Texture Synthesis
 - 待完成
 
 ---
 
-### Stylebank: An explicit representation for neural image style transfer
+### 1.4.4. Stylebank: An explicit representation for neural image style transfer
 - CVPR 2017
 - 无开源实现
-### A learned representation for artistic style
+### 1.4.5. A learned representation for artistic style
 -  ICLR, 2017
 -  待完成
-### Diversified texture synthesis with feed-forward networks
+### 1.4.6. Diversified texture synthesis with feed-forward networks
 -  CVPR, 2017
 -  待完成
-### Multi-style Generative Network for Real-time Transfer
+### 1.4.7. Multi-style Generative Network for Real-time Transfer
 - 作者：Hang Zhang, Kristin Dana.
 - 年份：2017
 - 会议：
@@ -109,7 +110,7 @@
 
 ---
 
-### Universal Style Transfer via Feature Transforms
+### 1.4.8. Universal Style Transfer via Feature Transforms
 - 作者：Yijun Li, et al. 
 - 年份：2017
 - 会议：
@@ -122,7 +123,7 @@
 - 开源代码：https://github.com/Yijunmaverick/UniversalStyleTransfer
 - 评价：这篇文章的思路也是在特征层面进行风格和属性的融合，通过WCT操作进行内容图像到风格图像的协方差矩阵对齐，避开了对一个风格图片训练一个模型的缺点，实现了单模型任意风格的转换。缺点是根据实验结果，其生成图片的质量与其他方法有一定差距，且未提到图像生成速度。
 
-### Fast Patch-based Style Transfer of Arbitrary Style
+### 1.4.9. Fast Patch-based Style Transfer of Arbitrary Style
 - 作者：Tian Qi Chen, Mark Schmidt
 - 年份：2016
 - 会议: 
@@ -136,7 +137,7 @@
   - 提出了新的思路即内容图片和风格图片的patches匹配。从作者的实现结果和开源实现来看效果不错，并且能够实现单模型任意风格转换。但是，由于需要在生成网络之前再经过VGG进行特征提取和style-swap，计算完毕后还要将结果送入生成网络重构图片，速度上达不到实时。
 
 
-### Meta Networks for Neural Style Transfer
+### 1.4.10. Meta Networks for Neural Style Transfer
 - 作者：Fa long Shen, Shuicheng Yan, Gang Zeng.
 - 年份：2018
 - 会议： CVPR
@@ -153,7 +154,7 @@
 - 评价
   - 单模型可处理任意风格，速度快，生成质量好
 
-### Dynamic Instance Normalization for Arbitrary Style Transfer
+### 1.4.11. Dynamic Instance Normalization for Arbitrary Style Transfer
 - 作者：
 - 年份：2020
 - 会议：AAAI
@@ -161,7 +162,7 @@
 
 
 
-### Arbitrary Style Transfer in Real-time with Adaptive Instance Normalization
+### 1.4.12. Arbitrary Style Transfer in Real-time with Adaptive Instance Normalization
 - 作者：Xun Huang  Serge Belongie
 - 年份：2017
 - 会议：ICCV 
@@ -174,12 +175,15 @@
   ![](./imgs/14.PNG)
 - 开源代码：https://github.com/xunhuang1995/AdaIN-style
 - 数据集: 内容图片数据集COCO 风格图片数据集WikiArt
+
 - 评价：该方法通过AdaIN解决了Fast Patch-based Style Transfer of Arbitrary Style中Style-Swap操作计算开销大的问题，实现了任意风格实时转换。有完整的开源实现和测试样例，效果比较好。但是在Multi-style Generative Network for Real-time Transfer文章中指出，单纯地使用mean和variance会导致风格迁移的效果稍差，不如使用GRAM矩阵所得到的结果更有吸引力。
+
+
 --- 
-### Real-Time Neural Style Transfer for Videos
+### 1.4.13. Real-Time Neural Style Transfer for Videos
 - 无开源实现
 
-### Coherent Online Video Style Transfer
+### 1.4.14. Coherent Online Video Style Transfer
 - 作者：Dongdong Chen, Jing Liao, Lu Y uan2, et al.
 - 年份：2017
 - 会议：ICCV
@@ -194,7 +198,7 @@
 - 评价：该方法有效地解决了逐帧风格迁移的闪烁问题，大大提升了视频风格迁移的图像质量。在之前的视频风格迁移的基础上大幅提升了速度，在GPU Titan X上能达到15FPS。虽然不能在普通设备上实现实时处理，但是对于离线处理是可以接受的选择。缺点是单风格单模型，但是可以通过更换S网络以达到单模型多风格。
 
 
-### ReCoNet: Real-time Coherent Video Style Transfer Network
+### 1.4.15. ReCoNet: Real-time Coherent Video Style Transfer Network
 - 作者：Chang Gao, et al.
 - 年份：2018
 - 会议：ACCV
@@ -217,11 +221,11 @@ H ×W
 - 开源代码:https://github.com/safwankdb/ReCoNet-PyTorch
 - 评价：该方案综合了视频风格转换的帧间平滑性和推理的实时性，且效果较好，有完整的开源实现以及测试样例。缺点是单风格单模型。
 
-### Learning Linear Transformations for Fast Image and Video Style Transfer
+### 1.4.16. Learning Linear Transformations for Fast Image and Video Style Transfer
 - 待完成
 
 
-### Fast Video Multi-Style Transfer
+### 1.4.17. Fast Video Multi-Style Transfer
 - 作者: Wei Gao1, Yijun Li, Yihang Yin,Ming-Hsuan Yang
 - 年份：2020
 - 会议：WACV
@@ -237,14 +241,14 @@ H ×W
 - 开源代码：https://github.com/gaow0007/Fast-Multi-Video-Style-Transfer
 - 评价：该文章满足单模型多风格的视频风格转换，且速度快。
 
-### Consistent Video Style Transfer via Compound Regularization
+### 1.4.18. Consistent Video Style Transfer via Compound Regularization
 - 待完成
 
-## 基于GAN
+## 1.5. 基于GAN
 - 待完成
 
-## 补充资料
-### FlowNet: Learning Optical Flow with Convolutional Networks
+## 1.6. 补充资料
+### 1.6.1. FlowNet: Learning Optical Flow with Convolutional Networks
 - 作用：用CNN预测光流的经典论文
 - 作者：Philipp Fischer, et al.
 - 年份: 2015
@@ -258,7 +262,7 @@ H ×W
   - 为了得到大量的数据集，作者自己设计了Flying Chairs。由于人工标注每个像素点光流的GT基本不可能，故作者使用了一种巧妙的方法(类似于先斩后奏)：首先生成一些椅子图片，融合到背景当中去，为了产生运动信息，产生融合图片的时候会随机产生一个位移变量，与背景和椅子的位移相关，再通过这个位移变量产生第二个图片和光流。
   ![](./imgs/13.PNG)
 
-### occusion mask相关
+### 1.6.2. occusion mask相关
 - 待完成
 
 
