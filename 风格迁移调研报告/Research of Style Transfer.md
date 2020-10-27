@@ -8,23 +8,16 @@
   - [1.4. 算法调研](#14-算法调研)
     - [1.4.1. A Neural Algorithm of Artistic Style](#141-a-neural-algorithm-of-artistic-style)
     - [1.4.2. Perceptual Losses for Real-Time Style Transfer and Super-Resolution](#142-perceptual-losses-for-real-time-style-transfer-and-super-resolution)
-    - [1.4.3. Improved Texture Networks: Maximizing Quality and Diversity in  Feed-forward Stylization and Texture Synthesis](#143-improved-texture-networks-maximizing-quality-and-diversity-in-feed-forward-stylization-and-texture-synthesis)
-    - [1.4.4. Stylebank: An explicit representation for neural image style transfer](#144-stylebank-an-explicit-representation-for-neural-image-style-transfer)
-    - [1.4.5. A learned representation for artistic style](#145-a-learned-representation-for-artistic-style)
-    - [1.4.6. Diversified texture synthesis with feed-forward networks](#146-diversified-texture-synthesis-with-feed-forward-networks)
     - [1.4.7. Multi-style Generative Network for Real-time Transfer](#147-multi-style-generative-network-for-real-time-transfer)
     - [1.4.8. Universal Style Transfer via Feature Transforms](#148-universal-style-transfer-via-feature-transforms)
     - [1.4.9. Fast Patch-based Style Transfer of Arbitrary Style](#149-fast-patch-based-style-transfer-of-arbitrary-style)
     - [1.4.10. Meta Networks for Neural Style Transfer](#1410-meta-networks-for-neural-style-transfer)
-    - [1.4.11. Dynamic Instance Normalization for Arbitrary Style Transfer](#1411-dynamic-instance-normalization-for-arbitrary-style-transfer)
     - [1.4.12. Arbitrary Style Transfer in Real-time with Adaptive Instance Normalization](#1412-arbitrary-style-transfer-in-real-time-with-adaptive-instance-normalization)
-    - [1.4.13. Real-Time Neural Style Transfer for Videos](#1413-real-time-neural-style-transfer-for-videos)
+    - [Learning Linear Transformations for Fast Image and Video Style Transfer](#learning-linear-transformations-for-fast-image-and-video-style-transfer)
+  - [- 评价：速度快，生成图像质量高，且对视频风格迁移兼容，在不适用光流的情况下，一定程度上减弱了背景扇动的缺陷，是不错的选择。](#ulli评价速度快生成图像质量高且对视频风格迁移兼容在不适用光流的情况下一定程度上减弱了背景扇动的缺陷是不错的选择liul)
     - [1.4.14. Coherent Online Video Style Transfer](#1414-coherent-online-video-style-transfer)
     - [1.4.15. ReCoNet: Real-time Coherent Video Style Transfer Network](#1415-reconet-real-time-coherent-video-style-transfer-network)
-    - [1.4.16. Learning Linear Transformations for Fast Image and Video Style Transfer](#1416-learning-linear-transformations-for-fast-image-and-video-style-transfer)
     - [1.4.17. Fast Video Multi-Style Transfer](#1417-fast-video-multi-style-transfer)
-    - [1.4.18. Consistent Video Style Transfer via Compound Regularization](#1418-consistent-video-style-transfer-via-compound-regularization)
-  - [1.5. 基于GAN](#15-基于gan)
   - [1.6. 补充资料](#16-补充资料)
     - [1.6.1. FlowNet: Learning Optical Flow with Convolutional Networks](#161-flownet-learning-optical-flow-with-convolutional-networks)
     - [1.6.2. occusion mask相关](#162-occusion-mask相关)
@@ -33,17 +26,23 @@
 ## 1.1. 场景需求
 - 给定视频内容和艺术风格，将二者融合，输出风格转换后的视频
 
+
+![](./imgs/17.PNG)
+![](./imgs/16.PNG)
 ## 1.2. 功能需求
 - 模型
-  - 单模型单风格
-  - 单模型多风格/任意风格
+  - 单模型单风格/单模型多风格
+  - 单模型任意风格
+- 适用范围
+  - 图片
+  - 视频
 - 实时性
   - 实时处理
   - 离线处理
 
 ## 1.3. 技术方法
 - 传统方法
-- NST 基于神经网络的风格迁移技术，端到端地生成风格迁移后的图片/视频
+- 从2015年开始，基于神经网络的风格迁移技术占据统治地位，端到端地生成风格迁移后的图片/视频
 
 
 ## 1.4. 算法调研
@@ -54,6 +53,7 @@
 - 主要思想：
   - 将内容表示和风格表示分开，用预训练好的VGG-16/VGG-19提取内容图片的内容特征C(指定层的特征图输出)和风格图片的风格特征S(指定层的特征图输出经过GRAM矩阵运算后的结果)
   - 将原始随机生成的噪声图片，指定的内容图片和风格图片这三张图片一起输入VGG中，得到原始图片的内容特征C', 风格特征S'，分别计算CC',SS'之间的欧式距离作为内容损失和风格损失，总损失函数为内容损失和风格损失的加权平均，反向迭代原始噪声图片，直到调节噪声图为目标图片。
+  ![](./imgs/15.PNG)
   - $\min _{I}\left(\lambda_{c}\left\|\mathbf{C} \mathbf{P}\left(I ; w_{f}\right)-\mathbf{C} \mathbf{P}\left(I_{c} ; w_{f}\right)\right\|_{2}^{2}+\lambda_{s}\left\|\mathbf{S} \mathbf{P}\left(I ; w_{f}\right)-\mathbf{S} \mathbf{P}\left(I_{s} ; w_{f}\right)\right\|_{2}^{2}\right)$
     - ${I}$为初始噪声图片,${I_c}$为内容图片，${I_s}$为风格图片，${w_f}$为VGG网络固定参数，$\mathbf{CP}$为内容表示，$\mathbf{SP}$风格表示$\lambda_c \lambda_s$分别表示内容权重和风格权重。
 - 数据集： 不需要训练数据集，只需要内容图片和风格图片
@@ -67,7 +67,7 @@
 ### 1.4.2. Perceptual Losses for Real-Time Style Transfer and Super-Resolution
 - 作者：Justin Johnson, Alexandre Alahi, Li Fei-Fei
 - 年份：2016
-- 会议
+- 会议：ECCV
 - 主要思想：
     - 在Gatys的基础上，在左边加上一个转换网络fw，目标是训练该fw使得对任意输入内容图片，快速地输出该内容图片融合固定地风格图片地结果，单模型单风格快速风格迁移(GTX Titan X GPU, 20FPS for 512X512)。
     - $\min _{w} \sum_{I_{c}}\left(\lambda_{c}\left\|\mathbf{C P}\left(I_{w} ; w_{f}\right)-\mathbf{C P}\left(I_{c} ; w_{f}\right)\right\|_{2}^{2}+\lambda_{s}\left\|\mathbf{S} \mathbf{P}\left(I_{w} ; w_{f}\right)-\mathbf{S} \mathbf{P}\left(I_{s} ; w_{f}\right)\right\|_{2}^{2}\right)$
@@ -75,30 +75,22 @@
     - 网络结构
   ![](./imgs/1.PNG)
 - 数据集：大量内容图片，如COCO数据集
-- 开源代码：https://github.com/abhiskk/fast-neural-style
+- 开源代码
+  - https://github.com/abhiskk/fast-neural-style
+  - https://github.com/lengstrom/fast-style-transfer
 - 评价：
   - 速度较快，图像转换质量高，缺点是风格需固定，每增加一个风格都要额外训练一个对应的模型。
-### 1.4.3. Improved Texture Networks: Maximizing Quality and Diversity in  Feed-forward Stylization and Texture Synthesis
-- 待完成
+
 
 ---
 
-### 1.4.4. Stylebank: An explicit representation for neural image style transfer
-- CVPR 2017
-- 无开源实现
-### 1.4.5. A learned representation for artistic style
--  ICLR, 2017
--  待完成
-### 1.4.6. Diversified texture synthesis with feed-forward networks
--  CVPR, 2017
--  待完成
 ### 1.4.7. Multi-style Generative Network for Real-time Transfer
 - 作者：Hang Zhang, Kristin Dana.
 - 年份：2017
 - 会议：
 - 主要思想
   - 仍然以VGG作为损失评估网络，训练一个生成网络G。G包括一个Siamese Network，用于提取输入风格图片S不同scale的特征统计信息，即不同scale下的Gram矩阵；一个转换网络T，接收内容图片C，C经过T编码后的特征图，通过CoMatch层与风格图片多个scale的特征统计信息进行匹配，得到生成图像。
-  - CoMatch Layer作用在于基于给定的风格图片匹配其特征的二阶统计量。它不是采用传统的C和S的内容损失和风格损失的加权平均，而是引入了一个可学习的矩阵W，能够动态地trade-off 风格与内容的比例系数。并且W的参数从总损失函数学习。
+  - CoMatch Layer作用在于基于给定的风格图片匹配其特征的二阶统计量。它引入了一个可学习的矩阵W，能够动态地trade-off 风格与内容的比例系数，调整编码器输出的特征图，然后特征图将会送入解码器重构并计算损失函数。并且W的参数从总损失函数学习。
     - CoMatch Layer $$\hat{\mathcal{Y}}^{i}=\Phi^{-1}\left[\Phi\left(\mathcal{F}^{i}\left(x_{c}\right)\right)^{T} W \mathcal{G}\left(\mathcal{F}^{i}\left(x_{s}\right)\right)\right]^{T}$$
     - Loss Function $$\begin{aligned} \hat{W}_{G} &=\underset{W_{G}}{\operatorname{argmin}} E_{x_{c}, x_{s}}\{\\ & \lambda_{c}\left\|\mathcal{F}^{c}\left(G\left(x_{c}, x_{s}\right)\right)-\mathcal{F}^{c}\left(x_{c}\right)\right\|_{F}^{2} \\ &+\lambda_{s} \sum_{i=1}^{K}\left\|\mathcal{G}\left(\mathcal{F}^{i}\left(G\left(x_{c}, x_{s}\right)\right)\right)-\mathcal{G}\left(\mathcal{F}^{i}\left(x_{s}\right)\right)\right\|_{F}^{2} \\ &\left.+\lambda_{T V} \ell_{T V}\left(G\left(x_{c}, x_{s}\right)\right)\right\} \end{aligned}$$
   ![](./imgs/5.PNG)
@@ -142,7 +134,7 @@
 - 年份：2018
 - 会议： CVPR
 - 主要思想
-  - 利用大量风格图片训练一个元网络MetaNet,该网络能够根据输入的风格图片对转换网络fw进行参数赋值，输入内容图像到fw中即可快速得到任意内容图片融合任意风格图片的结果(Titan X GPU, 19ms 切换风格，转换网络仅449KB，号称可在移动设备满足实时性)。
+  - 利用大量风格图片训练一个元网络MetaNet,该网络能够根据输入的风格图片对转换网络fw进行参数赋值，输入内容图像到fw中即可快速得到任意内容图片融合任意风格图片的结果(Titan X GPU, 19ms切换风格，转换网络仅7MB/449KB，号称可在移动设备满足实时性)。
 
   - $\min _{\theta} \sum_{I_{c}, I_{s}}\left(\lambda_{c}\left\|\mathbf{C} \mathbf{P}\left(I_{w_{\theta}} ; w_{f}\right)-\mathbf{C} \mathbf{P}\left(I_{c} ; w_{f}\right)\right\|_{2}^{2}+\lambda_{s}\left\|\mathbf{S} \mathbf{P}\left(I_{w_{\theta}} ; w_{f}\right)-\mathbf{S} \mathbf{P}\left(I_{s} ; w_{f}\right)\right\|_{2}^{2}\right)$
     - $w_\theta$ 是转换网络的权值，$\theta$是MetaN的权值
@@ -153,13 +145,6 @@
 - 开源代码：https://github.com/FalongShen/styletransfer
 - 评价
   - 单模型可处理任意风格，速度快，生成质量好
-
-### 1.4.11. Dynamic Instance Normalization for Arbitrary Style Transfer
-- 作者：
-- 年份：2020
-- 会议：AAAI
-- 无开源实现
-
 
 
 ### 1.4.12. Arbitrary Style Transfer in Real-time with Adaptive Instance Normalization
@@ -178,10 +163,20 @@
 
 - 评价：该方法通过AdaIN解决了Fast Patch-based Style Transfer of Arbitrary Style中Style-Swap操作计算开销大的问题，实现了任意风格实时转换。有完整的开源实现和测试样例，效果比较好。但是在Multi-style Generative Network for Real-time Transfer文章中指出，单纯地使用mean和variance会导致风格迁移的效果稍差，不如使用GRAM矩阵所得到的结果更有吸引力。
 
+### Learning Linear Transformations for Fast Image and Video Style Transfer
+- 作者：Xueting Li, Sifei Liu, Jan Kautz, and Ming-Hsuan Yang
+- 年份：2019
+- 会议：CVPR
+- 主要思想
+  - 提出学习一个转换矩阵transform matrix T，通过该矩阵对内容特征进行线性变换以匹配风格特征。
+  - 该T由转换模块transformation得到，整个网络也就这个模块需要学习，其他模块是已经预训练好的，充当编码器解码器或者损失评估网络。transformation模块输入的是内容特征与风格特征，分二路进行卷积层和全连接层计算最后融合，得到矩阵T。
+  - T通过变换内容特征得到结果送入解码器中进行图片重构，再送入损失评估网络进行传统的内容损失和风格损失计算，反向传播迭代Transformation模块的参数。
+  ![](./imgs/18.PNG)
 
+- 数据集：内容图片数据集COCO 风格图片数据集WikiArt
+- 评价：速度快，生成图像质量高，且对视频风格迁移兼容，在不适用光流的情况下，一定程度上减弱了背景扇动的缺陷，是不错的选择。
 --- 
-### 1.4.13. Real-Time Neural Style Transfer for Videos
-- 无开源实现
+
 
 ### 1.4.14. Coherent Online Video Style Transfer
 - 作者：Dongdong Chen, Jing Liao, Lu Y uan2, et al.
@@ -221,8 +216,7 @@ H ×W
 - 开源代码:https://github.com/safwankdb/ReCoNet-PyTorch
 - 评价：该方案综合了视频风格转换的帧间平滑性和推理的实时性，且效果较好，有完整的开源实现以及测试样例。缺点是单风格单模型。
 
-### 1.4.16. Learning Linear Transformations for Fast Image and Video Style Transfer
-- 待完成
+
 
 
 ### 1.4.17. Fast Video Multi-Style Transfer
@@ -241,11 +235,6 @@ H ×W
 - 开源代码：https://github.com/gaow0007/Fast-Multi-Video-Style-Transfer
 - 评价：该文章满足单模型多风格的视频风格转换，且速度快。
 
-### 1.4.18. Consistent Video Style Transfer via Compound Regularization
-- 待完成
-
-## 1.5. 基于GAN
-- 待完成
 
 ## 1.6. 补充资料
 ### 1.6.1. FlowNet: Learning Optical Flow with Convolutional Networks
